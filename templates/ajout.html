@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajout Médicament</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2a5a78;
+            --secondary-color: #5cb85c;
+            --light-bg: #f8f9fa;
+            --dark-bg: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin: 2rem auto;
+            max-width: 800px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            z-index: 2;
+        }
+
+        .form-control {
+            padding-left: 45px;
+            height: 50px;
+            border-radius: 8px!important;
+            width: 100%;
+        }
+
+        .btn-submit {
+            background: var(--secondary-color);
+            border: none;
+            padding: 0.75rem 2rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .input-icon {
+                left: 12px;
+                font-size: 0.9em;
+            }
+            
+            .form-control {
+                padding-left: 40px;
+                height: 46px;
+            }
+        }
+        header {
+            background-color: var(--primary-color) !important;
+        }
+    
+        footer {
+            background-color: var(--primary-color) !important;
+        }
+    </style>
+</head>
+<body>
+    <header class="text-white py-3">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h2 class="h4 mb-0">
+                <i class="fas fa-pills me-2"></i>Nouveau Médicament
+            </h2>
+            <nav>
+                <a href="{{ url_for('stock') }}" class="btn btn-light">
+                    <i class="fas fa-arrow-left me-2"></i>Retour
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container flex-grow-1">
+        <!-- Messages Flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mt-4">
+                        <i class="fas fa-info-circle me-2"></i>{{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="form-container mt-4">
+            <form action="{{ url_for('ajout') }}" method="POST">
+                <!-- Nom du médicament -->
+                <div class="mb-4">
+                    <label for="articleName" class="form-label">Nom du médicament</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-tag input-icon"></i>
+                        <input type="text" 
+                               class="form-control" 
+                               id="articleName" 
+                               name="articleName" 
+                               placeholder="Ex: Paracétamol" 
+                               required>
+                    </div>
+                </div>
+
+                <!-- Grille de champs -->
+                <div class="row g-3">
+                    <!-- Quantité -->
+                    <div class="col-md-6">
+                        <label for="articleQuantity" class="form-label">Quantité</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-calculator input-icon"></i>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="articleQuantity" 
+                                   name="articleQuantity" 
+                                   min="1" 
+                                   required>
+                        </div>
+                    </div>
+
+                    <!-- Dosage -->
+                    <div class="col-md-6">
+                        <label for="articleDosage" class="form-label">Dosage</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-flask input-icon"></i>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="articleDosage" 
+                                   name="articleDosage" 
+                                   placeholder="Ex: 500mg" 
+                                   pattern="^\d+(mg|g|ml)$" 
+                                   required>
+                        </div>
+                    </div>
+
+                    <!-- Expiration -->
+                    <div class="col-md-6">
+                        <label for="articleExpiration" class="form-label">Expiration</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-calendar-day input-icon"></i>
+                            <input type="date" 
+                                   class="form-control" 
+                                   id="articleExpiration" 
+                                   name="articleExpiration" 
+                                   min="{{ current_date }}" 
+                                   required>
+                        </div>
+                    </div>
+
+                    <!-- Prix -->
+                    <div class="col-md-6">
+                        <label for="articlePrice" class="form-label">Prix unitaire</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-euro-sign input-icon"></i>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="articlePrice" 
+                                   name="articlePrice" 
+                                   step="0.01" 
+                                   required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Forme pharmaceutique -->
+                <div class="mb-4">
+                    <label for="articleForm" class="form-label">Forme pharmaceutique</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-capsules input-icon"></i>
+                        <input type="text" 
+                               class="form-control" 
+                               id="articleForm" 
+                               name="articleForm" 
+                               placeholder="Ex: Comprimé" 
+                               required>
+                    </div>
+                </div>
+
+                <!-- Catégorie thérapeutique -->
+                <div class="mb-4">
+                    <label for="articleCategory" class="form-label">Catégorie thérapeutique</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-stethoscope input-icon"></i>
+                        <input type="text" 
+                               class="form-control" 
+                               id="articleCategory" 
+                               name="articleCategory" 
+                               placeholder="Ex: Analgésique" 
+                               required>
+                    </div>
+                </div>
+
+                <!-- Boutons -->
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <button type="submit" class="btn btn-submit text-white">
+                        <i class="fas fa-plus-circle me-2"></i>Ajouter
+                    </button>
+                    <a href="{{ url_for('stock') }}" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="text-white text-center py-3 mt-auto">
+        <div class="container">
+            <p class="mb-0">&copy; 2025 Pharmacie Sansaf. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

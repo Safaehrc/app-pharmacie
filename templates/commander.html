@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commander {{ medicament.name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2a5a78;
+            --secondary-color: #5cb85c;
+            --light-bg: #f8f9fa;
+            --dark-bg: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .order-container {
+            background: rgba(255,255,255,0.98);
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin: 2rem auto;
+            max-width: 600px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            z-index: 2;
+            width: 20px;
+            text-align: center;
+        }
+
+        .form-control {
+            padding-left: 45px;
+            height: 50px;
+            border-radius: 8px!important;
+        }
+
+        textarea.form-control {
+            height: auto!important;
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+            line-height: 1.5;
+        }
+
+        .btn-submit {
+            background: var(--secondary-color);
+            border: none;
+            padding: 0.75rem 2rem;
+            height: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .char-count {
+            font-size: 0.8em;
+            text-align: right;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .order-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .form-control {
+                padding-left: 40px;
+                height: 46px;
+            }
+            
+            .input-icon {
+                left: 12px;
+                font-size: 0.9em;
+            }
+        }
+        header {
+            background-color: var(--primary-color) !important;
+        }
+    
+        footer {
+            background-color: var(--primary-color) !important;
+        }
+    </style>
+</head>
+<body>
+    <header class="text-white py-3">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h2 class="h4 mb-0 d-flex align-items-center">
+                <i class="fas fa-prescription-bottle me-2"></i>Commande : {{ medicament.name }}
+            </h2>
+            <nav>
+                <a href="{{ url_for('stock') }}" class="btn btn-light d-flex align-items-center">
+                    <i class="fas fa-arrow-left me-2"></i>Retour
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container flex-grow-1">
+        <!-- Messages flash -->
+        {% if form_submitted %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show mt-4">
+                            <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }} me-2"></i>
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        {% endif %}
+
+        <div class="order-container mt-4">
+            <form action="{{ url_for('commander', medicament_id=medicament.id) }}" method="POST">
+                <!-- Quantité -->
+                <div class="mb-4">
+                    <label for="quantity" class="form-label">Quantité</label>
+                    <div class="input-group">
+                        <i class="fas fa-hashtag input-icon"></i>
+                        <input type="number" 
+                               class="form-control" 
+                               id="quantity" 
+                               name="quantity" 
+                               min="1" 
+                               max="{{ medicament.quantity }}" 
+                               required
+                               value="{{ quantity|default('1') }}">
+                    </div>
+                    <small class="text-muted">Stock disponible : {{ medicament.quantity }}</small>
+                </div>
+
+                <!-- Téléphone -->
+                <div class="mb-4">
+                    <label for="phone" class="form-label">Téléphone</label>
+                    <div class="input-group">
+                        <i class="fas fa-phone input-icon"></i>
+                        <input type="tel" 
+                               class="form-control" 
+                               id="phone" 
+                               name="phone" 
+                               pattern="[0-9]{10}" 
+                               required
+                               value="{{ phone|default('06********') }}">
+                    </div>
+                </div>
+
+                <!-- Adresse -->
+                <div class="mb-4">
+                    <label for="address" class="form-label">Adresse complète</label>
+                    <div class="input-group">
+                        <i class="fas fa-map-marker-alt input-icon"></i>
+                        <textarea class="form-control" 
+                                  id="address" 
+                                  name="address" 
+                                  rows="3" 
+                                  maxlength="200" 
+                                  required>{{ address|default('Rue de la Paix') }}</textarea>
+                    </div>
+                    <div class="char-count"><span id="char-count">0</span>/200 caractères</div>
+                </div>
+
+                <!-- Boutons -->
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <button type="submit" class="btn btn-submit text-white">
+                        <i class="fas fa-check-circle me-2"></i>Confirmer
+                    </button>
+                    <a href="{{ url_for('stock') }}" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="text-white text-center py-3 mt-auto">
+        <div class="container">
+            <p class="mb-0">&copy; 2025 Pharmacie Sansaf. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Compteur de caractères pour l'adresse
+        const textarea = document.getElementById('address');
+        const charCount = document.getElementById('char-count');
+        
+        textarea.addEventListener('input', () => {
+            charCount.textContent = textarea.value.length;
+        });
+    </script>
+</body>
+</html>

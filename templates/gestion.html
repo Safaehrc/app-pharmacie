@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Médicaments</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2a5a78;
+            --secondary-color: #5cb85c;
+            --light-bg: #f8f9fa;
+            --dark-bg: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .management-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin: 2rem auto;
+            max-width: 1200px;
+        }
+
+        .medication-table {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .medication-table thead {
+            background: linear-gradient(135deg, var(--primary-color), #1d465f);
+            color: white;
+        }
+
+        .action-dropdown {
+            min-width: 120px;
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+        }
+
+        .btn-add {
+            background: var(--secondary-color);
+            border: none;
+            padding: 0.75rem 2rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(92,184,92,0.3);
+        }
+
+        .expiration-warning {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .management-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .table-responsive {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-primary text-white py-3">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h1 class="h4 mb-0">
+                <i class="fas fa-pills me-2"></i>Gestion des Médicaments
+            </h1>
+            <nav>
+                <form action="{{ url_for('logout') }}" method="POST">
+                    <button type="submit" class="btn btn-light">
+                        <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+                    </button>
+                </form>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container flex-grow-1">
+        <div class="management-container mt-4">
+            <!-- Formulaire de recherche -->
+            <form action="/gestion" method="GET" class="mb-4">
+                <div class="input-icon">
+                    <i class="fas fa-search"></i>
+                    <input type="text" 
+                           class="form-control" 
+                           id="searchBar" 
+                           name="q" 
+                           placeholder="Rechercher un médicament..." 
+                           value="{{ request.args.get('q', '') }}">
+                </div>
+            </form>
+
+            <!-- Formulaire d'ajout -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-plus-circle me-2"></i>Ajouter un médicament
+                </div>
+                <div class="card-body">
+                    <form id="articleForm" action="/add_article" method="POST" class="row g-3">
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" name="articleName" placeholder="Nom" required>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" class="form-control" name="articleQuantity" placeholder="Quantité" required>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control" name="articleDosage" placeholder="Dosage" required>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="date" class="form-control" name="articleExpiration" required>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-add text-white w-100">
+                                <i class="fas fa-save me-2"></i>Ajouter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tableau des médicaments -->
+            <div class="table-responsive medication-table">
+                <table class="table table-hover align-middle">
+                    <thead class="align-middle">
+                        <tr>
+                            <th>Nom</th>
+                            <th>Quantité</th>
+                            <th>Dosage</th>
+                            <th>Expiration</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for article in articles %}
+                        <tr>
+                            <td>{{ article.name }}</td>
+                            <td>{{ article.quantity }}</td>
+                            <td>{{ article.dosage }}</td>
+                            <td class="{{ 'expiration-warning' if article.is_expired }}">
+                                {{ article.expiration.strftime('%d/%m/%Y') }}
+                                {% if article.is_expired %}<i class="fas fa-exclamation-triangle ms-2"></i>{% endif %}
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-secondary dropdown-toggle" 
+                                            type="button" 
+                                            data-bs-toggle="dropdown">
+                                        Actions
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="#" 
+                                               data-bs-toggle="modal" 
+                                               data-bs-target="#editModal{{ loop.index }}">
+                                                <i class="fas fa-edit me-2"></i>Modifier
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <form action="/delete_article" method="POST">
+                                                <input type="hidden" name="articleName" value="{{ article.name }}">
+                                                <button type="submit" 
+                                                        class="dropdown-item text-danger" 
+                                                        onclick="return confirm('Confirmer la suppression ?')">
+                                                    <i class="fas fa-trash me-2"></i>Supprimer
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- Modal d'édition -->
+                                <div class="modal fade" id="editModal{{ loop.index }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Modifier médicament</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <form action="/edit_article" method="POST">
+                                                <div class="modal-body">
+                                                    <input type="hidden" name="articleName" value="{{ article.name }}">
+                                                    <div class="mb-3">
+                                                        <label>Nom</label>
+                                                        <input type="text" name="newName" 
+                                                               value="{{ article.name }}" 
+                                                               class="form-control" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label>Quantité</label>
+                                                        <input type="number" name="newQuantity" 
+                                                               value="{{ article.quantity }}" 
+                                                               class="form-control" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label>Dosage</label>
+                                                        <input type="text" name="newDosage" 
+                                                               value="{{ article.dosage }}" 
+                                                               class="form-control" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label>Expiration</label>
+                                                        <input type="date" name="newExpiration" 
+                                                               value="{{ article.expiration.strftime('%Y-%m-%d') }}" 
+                                                               class="form-control" required>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-primary text-white text-center py-3 mt-auto">
+        <div class="container">
+            <p class="mb-0">&copy; 2025 Pharmacie Sansaf. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Gestion des dates d'expiration
+        document.querySelectorAll('.expiration-warning').forEach(item => {
+            item.innerHTML += '<span class="ms-2">(Expiré)</span>';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion du Stock - Pharmacie Sansaf</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2a5a78;
+            --secondary-color: #5cb85c;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-bg: #f8f9fa;
+            --dark-bg: #1d2d2d;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
+        }
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+}
+
+        
+
+        .stock-header {
+            background: linear-gradient(135deg, var(--primary-color), #1d465f);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .table-custom {
+            border-collapse: separate;
+            border-spacing: 0 8px;
+            background: transparent;
+            margin: 1rem 0;
+            padding: 0.5rem;
+        }
+
+        .table-custom thead {
+            background: var(--primary-color);
+            position: sticky;
+            top: 0;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+
+        .table-custom th {
+            padding: 1rem;
+            font-weight: 600;
+            border: none;
+            vertical-align: middle;
+        }
+
+        .table-custom td {
+            padding: 1rem;
+            background: var(--light-bg);
+            border: none;
+            vertical-align: middle;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .table-custom tbody tr {
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .table-custom tbody tr:hover {
+            transform: translateX(5px);
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        }
+
+        .quantity-indicator {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.85em;
+        }
+
+        .quantity-low { background: #fff3cd; color: #856404; }
+        .quantity-critical { background: #f8d7da; color: #721c24; }
+        .quantity-good { background: #d4edda; color: #155724; }
+
+        .expiration-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .expiration-icon {
+            font-size: 1.2em;
+        }
+
+        
+
+        @media (max-width: 768px) {
+            .table-custom td:before {
+                content: attr(data-label);
+                font-weight: 600;
+                margin-right: 1rem;
+                color: var(--primary-color);
+            }
+            
+            .table-custom td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem;
+            }
+            
+            .table-custom td .btn {
+                margin-top: 0.5rem;
+            }
+
+            .table-custom thead {
+                display: none;
+            }
+        }
+
+        .nav-actions {
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .sort-link {
+            color: white;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .sort-link:hover {
+            color: var(--secondary-color);
+        }
+
+        .sort-arrow {
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header class="stock-header">
+        <div class="container">
+            <h2 class="h4 mb-3 text-center">
+                <i class="fas fa-pills me-2"></i>Gestion du Stock
+            </h2>
+            
+            <div class="d-flex justify-content-between nav-actions">
+                <div class="d-flex gap-2 flex-wrap">
+                    {% if current_user.role == 'admin' %}
+                        <a href="{{ url_for('ajout') }}" class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i>Ajouter
+                        </a>
+                        <a href="{{ url_for('statistiques') }}" class="btn btn-primary">
+                            <i class="fas fa-chart-bar me-2"></i>Statistiques
+                        </a>
+                        <a href="{{ url_for('view_messages') }}" class="btn btn-warning">
+                            <i class="fas fa-envelope me-2"></i>Messages
+                        </a>
+                        <a href="{{ url_for('all_commandes') }}" class="btn btn-info">
+                            <i class="fas fa-clipboard-list me-2"></i>Commandes
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('mes_commandes') }}" class="btn btn-info">
+                            <i class="fas fa-clipboard-list me-2"></i>Mes Commandes
+                        </a>
+                        <a href="{{ url_for('chatbot') }}" class="btn btn-primary">
+                            <i class="fas fa-robot me-2"></i>Chatbot
+                        </a>
+                        <a href="{{ url_for('contact_support') }}" class="btn btn-secondary">
+                            <i class="fas fa-headset me-2"></i>contactez nous
+                           
+                        </a>
+              
+                    {% endif %}
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('download_stock') }}" class="btn btn-secondary">
+                        <i class="fas fa-file-export me-2"></i>Exporter
+                    </a>
+                    <a href="{{ url_for('profile') }}" class="btn btn-light">
+                        <i class="fas fa-user me-2"></i>Profil
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-danger">
+                        <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+                    </a>
+                </div>
+            </div>
+
+            <form method="GET" action="{{ url_for('stock') }}" class="mt-3">
+                <div class="input-group">
+                    <input type="text" 
+                           class="form-control" 
+                           name="q" 
+                           placeholder="Rechercher un médicament..." 
+                           value="{{ request.args.get('q', '') }}">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </header>
+
+    <main class="container flex-grow-1 mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                        <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' }} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if current_user.role == 'admin' %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for article in articles %}
+            <div class="col">
+                <div class="card medication-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">
+                            <i class="fas fa-capsules me-2"></i>{{ article.name }}
+                        </h5>
+                        <div class="card-text">
+                            <ul class="list-unstyled">
+                                <li><strong>Quantité :</strong> {{ article.quantity }}</li>
+                                <li><strong>Dosage :</strong> {{ article.dosage }}</li>
+                                <li><strong>Expiration :</strong> {{ article.expiration.strftime('%d/%m/%Y') }}</li>
+                                <li><strong>Prix :</strong> {{ article.price }} MAD</li>
+                                <li><strong>Forme :</strong> {{ article.form }}</li>
+                                <li><strong>Catégorie :</strong> {{ article.category }}</li>
+                            </ul>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('edit_article', article_id=article.id) }}" 
+                               class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i> Modifier
+                            </a>
+                            <form action="{{ url_for('delete_article') }}" method="POST"
+                                  onsubmit="return confirm('Confirmer la suppression ?')">
+                                <input type="hidden" name="articleId" value="{{ article.id }}">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if current_user.role == 'user' %}
+        <div class="table-responsive">
+            <table class="table table-custom table-borderless">
+                <thead class="align-middle">
+                    <tr>
+                        <th><i class="fas fa-capsules me-2"></i>Nom</th>
+                        <th><i class="fas fa-battery-three-quarters me-2"></i>Stock</th>
+                        <th><i class="fas fa-prescription-bottle me-2"></i>Dosage</th>
+                        <th><i class="fas fa-calendar-day me-2"></i>Expiration</th>
+                        <th><i class="fas fa-coins me-2"></i>Prix</th>
+                        <th><i class="fas fa-shapes me-2"></i>Forme</th>
+                        <th><i class="fas fa-tags me-2"></i>Catégorie</th>
+                        <th><i class="fas fa-tools me-2"></i>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for article in articles %}
+                    <tr>
+                        <td data-label="Nom">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fas fa-pills text-primary"></i>
+                                {{ article.name }}
+                            </div>
+                        </td>
+                        <td data-label="Stock">
+                            {% set quantity_class = 'quantity-critical' if article.quantity < 5 
+                                else 'quantity-low' if article.quantity < 15 
+                                else 'quantity-good' %}
+                            <span class="quantity-indicator {{ quantity_class }}">
+                                {{ article.quantity }} unités
+                            </span>
+                        </td>
+                        <td data-label="Dosage">{{ article.dosage }}</td>
+                        <td data-label="Expiration">
+                            <div class="expiration-status">
+                                {% set expiration_status = article.expiration|expiration_status %}
+                                <i class="fas fa-{% if expiration_status == 'expired' %}exclamation-triangle text-danger
+                                               {% elif expiration_status == 'warning' %}exclamation-circle text-warning
+                                               {% else %}check-circle text-success{% endif %} expiration-icon"></i>
+                                {{ article.expiration.strftime('%d/%m/%Y') }}
+                            </div>
+                        </td>
+                        <td data-label="Prix">{{ article.price }} MAD</td>
+                        <td data-label="Forme">{{ article.form }}</td>
+                        <td data-label="Catégorie">
+                            <span class="badge bg-secondary">{{ article.category }}</span>
+                        </td>
+                        <td data-label="Actions">
+                            <form action="{{ url_for('commander', medicament_id=article.id) }}" method="POST">
+                                <button type="submit" 
+                                        class="btn btn-success btn-sm d-flex align-items-center"
+                                        data-bs-toggle="tooltip" 
+                                        title="Commander ce médicament">
+                                    <i class="fas fa-cart-plus me-1"></i>
+                                    <span class="d-none d-md-inline">Commander</span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <nav aria-label="Navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if articles.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('stock', page=articles.prev_num) }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                {% for page_num in articles.iter_pages() %}
+                <li class="page-item {% if page_num == articles.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('stock', page=page_num) }}">{{ page_num }}</a>
+                </li>
+                {% endfor %}
+                {% if articles.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('stock', page=articles.next_num) }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </main>
+
+    <footer class="text-white text-center py-3 mt-4">
+        <div class="container">
+            <p class="mb-0">&copy; 2025 Pharmacie Sansaf. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialisation des tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        tooltipTriggerList.map(t => new bootstrap.Tooltip(t))
+
+        // Gestion des indicateurs de tri
+        const urlParams = new URLSearchParams(window.location.search);
+        const sortBy = urlParams.get('sort_by');
+        const sortOrder = urlParams.get('sort_order');
+
+        document.querySelectorAll('.sort-link').forEach(link => {
+            if (link.href.includes(`sort_by=${sortBy}`)) {
+                const arrow = document.createElement('i');
+                arrow.className = sortOrder === 'asc' ? 
+                    'fas fa-sort-up sort-arrow' : 
+                    'fas fa-sort-down sort-arrow';
+                link.appendChild(arrow);
+            }
+        });
+    </script>
+</body>
+</html>

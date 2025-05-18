@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Facture Commande #{{ commande.id }} - Pharmacie Sansaf</title>
+    <style>
+        :root {
+            --primary-color: #2a5a78;
+            --secondary-color: #5cb85c;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 2cm;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .invoice-title {
+            font-size: 2.2em;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .payment-notice {
+            background: #e3f2fd;
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        th {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .total-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+            text-align: right;
+        }
+
+        .total-amount {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2a5a78;
+        }
+
+        .delivery-instructions {
+            background: #f3f4f6;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+
+        .footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.85em;
+            color: #666666;
+        }
+
+        @media print {
+            body {
+                margin: 1cm;
+            }
+            .invoice-container {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <div class="header">
+            <div>
+                <h1 class="invoice-title">Facture</h1>
+                <div class="company-info">
+                    <p>Pharmacie Sansaf<br>
+                    123 Avenue Mohammed V<br>
+                    Casablanca, Maroc<br>
+                    Tél: +212 522 123 456</p>
+                </div>
+            </div>
+            <div>
+                <p><strong>N° Commande:</strong> #{{ commande.id }}</p>
+                <p><strong>Date:</strong> {{ commande.date_commande.strftime('%d/%m/%Y %H:%M') }}</p>
+            </div>
+        </div>
+
+        <div class="payment-notice">
+            <h3>ⓘ Paiement à la Livraison</h3>
+            <p>Le montant total sera réglé en espèces au moment de la livraison.<br>
+            Préparation monnaie exacte recommandée</p>
+        </div>
+
+        <div class="details-grid">
+            <div>
+                <h3>Informations Client</h3>
+                <p>{{ commande.user.username }}<br>
+                {{ commande.delivery_details.address }}<br>
+                {{ commande.delivery_details.phone }}</p>
+            </div>
+            <div>
+                <h3>Détails Livraison</h3>
+                <p>Livraison express<br>
+                Horaires: 8h-20h<br>
+                Contact livreur: +212 600 123 456</p>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Médicament</th>
+                    <th>Dosage</th>
+                    <th>Quantité</th>
+                    <th>Prix unitaire</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ commande.medicament.name }}</td>
+                    <td>{{ commande.medicament.dosage }}</td>
+                    <td>{{ commande.quantity }}</td>
+                    <td>{{ commande.medicament.price }} MAD</td>
+                    <td>{{ commande.total }} MAD</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="total-section">
+            <span class="total-amount">Montant à payer à la livraison : {{ commande.total }} MAD</span>
+        </div>
+
+        <div class="delivery-instructions">
+            <h4>Instructions Importantes</h4>
+            <ul>
+                <li>Présenter une pièce d'identité lors de la livraison</li>
+                <li>Vérifier le colis avant paiement</li>
+                <li>Le livreur fournira un reçu officiel</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>Conditions générales :<br>
+            - Annulation possible jusqu'à 2h avant la livraison<br>
+            - Frais de livraison offerts<br>
+            - Service client : contact@sansaf.ma</p>
+        </div>
+    </div>
+</body>
+</html>

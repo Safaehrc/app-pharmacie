@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>À propos de notre Pharmacie</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2a5a78;
+            --secondary-color: #5cb85c;
+            --light-bg: #f8f9fa;
+            --dark-bg: #1a1a1a;
+            --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .about-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 2rem auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        
+
+        .feature-list li {
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: var(--light-bg);
+            border-radius: 12px;
+            transition: var(--transition);
+            cursor: pointer;
+            border-left: 4px solid transparent;
+        }
+
+        .feature-list li:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border-left-color: var(--secondary-color);
+        }
+
+        .feature-icon {
+            color: var(--secondary-color);
+            margin-right: 1rem;
+            transition: var(--transition);
+        }
+
+        .contact-card {
+            background: linear-gradient(135deg, var(--primary-color), #1d465f);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .contact-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .mission-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            border-left: 3px solid var(--secondary-color);
+            padding-left: 1.5rem;
+        }
+
+        .value-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: 100%;
+            transition: var(--transition);
+        }
+
+        .value-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+            backdrop-filter: blur(8px);
+            background: rgba(42, 90, 120, 0.98);
+        }
+
+        @media (max-width: 768px) {
+            .about-section {
+                padding: 2rem;
+                margin: 1rem;
+            }
+            
+            .feature-list li {
+                padding: 1rem;
+            }
+        }
+        header {
+            background-color: var(--primary-color) !important;
+        }
+    
+        footer {
+            background-color: var(--primary-color) !important;
+        }
+    </style>
+</head>
+<body>
+    <header class="sticky-header py-3 shadow-sm">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h1 class="h4 mb-0 text-white">
+                <i class="fas fa-prescription-bottle-alt me-2"></i>Pharmacie Sansaf
+            </h1>
+            <nav>
+                <a href="{{ url_for('home') }}" class="btn btn-outline-light btn-sm nav-button">Accueil</a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-sm nav-button">Connexion</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container my-5">
+        <div class="about-section">
+            <h2 class="display-5 mb-4 text-center fw-bold">
+                <i class="fas fa-info-circle feature-icon"></i>Notre Engagement
+            </h2>
+            
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <h3 class="h4 mb-3">Fonctionnalités clés</h3>
+                    <ul class="feature-list">
+                        <li>
+                            <i class="fas fa-capsules feature-icon fa-lg"></i>
+                            Gestion intelligente des stocks et dates d'expiration
+                        </li>
+                        <li>
+                            <i class="fas fa-bell feature-icon fa-lg"></i>
+                            Alertes automatiques pour stocks critiques
+                        </li>
+                        <li>
+                            <i class="fas fa-lock feature-icon fa-lg"></i>
+                            Sécurité des données certifiée
+                        </li>
+                        <li>
+                            <i class="fas fa-robot feature-icon fa-lg"></i>
+                            Assistant virtuel intégré
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="contact-card">
+                        <h3 class="h4 mb-3">Notre Mission</h3>
+                        <p class="mission-text">Révolutionner la gestion pharmaceutique grâce à une technologie fiable et accessible.</p>
+                        
+                        <h3 class="h4 mb-3">Contact</h3>
+                        <div class="mb-3">
+                            <i class="fas fa-envelope me-2"></i>
+                            <a href="mailto:pharmaciesansaf@gmail.com" class="text-decoration-none text-white">pharmaciesansaf@gmail.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5">
+                <h3 class="h4 mb-4">Notre Vision</h3>
+                <p class="lead mb-4">Combiner l'expertise pharmaceutique et l'innovation technologique pour une santé accessible à tous.</p>
+                
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="value-card">
+                            <i class="fas fa-clock feature-icon fs-4"></i>
+                            <h4 class="h5 mt-2">Disponibilité 24/7</h4>
+                            <p class="mb-0">Service continu pour vos urgences médicales</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="value-card">
+                            <i class="fas fa-shield-alt feature-icon fs-4"></i>
+                            <h4 class="h5 mt-2">Sécurité absolue</h4>
+                            <p class="mb-0">Données cryptées et conformité RGPD</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="value-card">
+                            <i class="fas fa-mobile-alt feature-icon fs-4"></i>
+                            <h4 class="h5 mt-2">Accessibilité</h4>
+                            <p class="mb-0">Interface optimisée pour tous les appareils</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class=" text-white py-4 mt-auto">
+        <div class="container">
+            <p class="mb-0 text-center">&copy; 2025 Pharmacie Sansaf. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Animation au survol des liens
+        document.querySelectorAll('.nav-button').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.transform = 'translateY(-2px)';
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Effet de clic sur le contact
+        document.querySelector('.contact-card a').addEventListener('click', function(e) {
+            e.preventDefault();
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+                window.location.href = this.href;
+            }, 200);
+        });
+    </script>
+</body>
+</html>

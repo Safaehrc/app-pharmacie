@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages des Utilisateurs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2a5a78;
+            --secondary-color: #5cb85c;
+            --light-bg: #f8f9fa;
+            --dark-bg: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), #1d465f);
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .message-table {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .message-table thead {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        
+
+        .message-table tbody tr:hover {
+            background-color: rgba(92, 184, 92, 0.05);
+            transition: background-color 0.2s;
+        }
+
+        .message-badge {
+            background: var(--secondary-color);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .btn-back {
+            transition: transform 0.2s;
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-back:hover {
+            transform: translateX(-5px);
+        }
+
+        @media (max-width: 768px) {
+            .table-responsive {
+                border-radius: 0;
+                font-size: 0.9em;
+            }
+            
+            .message-table th,
+            .message-table td {
+                padding: 0.75rem;
+            }
+        }
+    
+        footer {
+            background-color: var(--primary-color) !important;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0 text-white">
+                    <i class="fas fa-comments me-2"></i>Messages des Utilisateurs
+                </h2>
+                <nav>
+                    <a href="{{ url_for('stock') }}" class="btn btn-light btn-back">
+                        <i class="fas fa-arrow-left me-2"></i>Tableau de bord
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mt-4 flex-grow-1">
+        <div class="table-responsive message-table">
+            <table class="table table-hover align-middle">
+                <thead class="align-middle">
+                    <tr>
+                        <th><i class="fas fa-user me-2"></i>Nom</th>
+                        <th><i class="fas fa-envelope me-2"></i>Email</th>
+                        <th><i class="fas fa-comment-dots me-2"></i>Message</th>
+                        <th><i class="fas fa-calendar-alt me-2"></i>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for message in messages %}
+                    <tr>
+                        <td>
+                            <span class="message-badge text-white">{{ message.name }}</span>
+                        </td>
+                        <td>{{ message.email }}</td>
+                        <td class="text-break">{{ message.message }}</td>
+                        <td>
+                            <span class="text-muted">
+                                {{ message.date_sent.strftime('%d/%m/%Y %H:%M') }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer class="text-white text-center py-3 mt-4">
+        <div class="container">
+            <p class="mb-0">&copy; 2025 Pharmacie Sansaf. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

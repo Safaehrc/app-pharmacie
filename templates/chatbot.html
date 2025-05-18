@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant Virtuel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2a5a78;
+            --secondary-color: #5cb85c;
+            --light-bg: #f8f9fa;
+            --dark-bg: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        
+
+        .chat-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .chat-messages {
+            height: 400px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px 15px 0 0;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+       
+
+        .message {
+            max-width: 80%;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 15px;
+        }
+
+        .user-message {
+            background: var(--primary-color);
+            color: white;
+            margin-left: auto;
+        }
+
+        .bot-message {
+            background: var(--light-bg);
+            border: 1px solid #dee2e6;
+        }
+
+
+        .chat-input {
+            border-radius: 0 0 15px 15px;
+            padding: 1.5rem;
+            background: rgba(255,255,255,0.95);
+        }
+
+
+        .typing-indicator {
+            display: none;
+            padding: 1rem;
+            font-style: italic;
+            color: #6c757d;
+        }
+
+        @keyframes ellipsis {
+            0% { content: '.'; }
+            33% { content: '..'; }
+            66% { content: '...'; }
+        }
+
+        .typing-indicator::after {
+            content: '';
+            animation: ellipsis 1.5s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                margin: 1rem;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+        }
+        header {
+            background-color: var(--primary-color) !important;
+        }
+    
+        footer {
+            background-color: var(--primary-color) !important;
+        }
+    </style>
+</head>
+<body>
+    <header class=" text-white py-3">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h2 class="h4 mb-0">
+                <i class="fas fa-robot me-2"></i>Assistant Virtuel
+            </h2>
+            <nav>
+                <a href="{{ url_for('stock') }}" class="btn btn-light">
+                    <i class="fas fa-arrow-left me-2"></i>Retour
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container flex-grow-1 mt-4">
+        <div class="chat-container">
+            <div class="chat-messages" id="chat-messages">
+                <div class="typing-indicator" id="typing-indicator">L'assistant rédige une réponse</div>
+                <div class="message bot-message">
+                    Bonjour ! Je suis l'assistant virtuel de la Pharmacie Sansaf. 
+                    Posez-moi vos questions sur les médicaments et leurs utilisations.
+                </div>
+            </div>
+            <form id="chat-form" class="chat-input d-flex gap-2">
+                <input type="text" 
+                       id="chat-input" 
+                       class="form-control" 
+                       placeholder="Posez votre question ici..." 
+                       required>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <footer class=" text-white text-center py-3 mt-auto">
+        <div class="container">
+            <p class="mb-0">&copy; 2025 Pharmacie Sansaf. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script>
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
+        const typingIndicator = document.getElementById('typing-indicator');
+
+        function addMessage(message, isUser = true) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.innerHTML = `
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i>
+                    <div>${message}</div>
+                </div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const question = chatInput.value.trim();
+            if (!question) return;
+
+            // Ajout du message utilisateur
+            addMessage(question, true);
+            
+            // Affichage de l'indicateur de saisie
+            typingIndicator.style.display = 'block';
+            chatInput.disabled = true;
+            chatForm.querySelector('button').disabled = true;
+
+            try {
+                const response = await fetch('/chatbot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question })
+                });
+
+                if (!response.ok) throw new Error('Erreur de réponse');
+
+                const data = await response.json();
+                addMessage(data.answer, false);
+            } catch (error) {
+                addMessage("Désolé, une erreur s'est produite. Veuillez réessayer.", false);
+            } finally {
+                typingIndicator.style.display = 'none';
+                chatInput.disabled = false;
+                chatForm.querySelector('button').disabled = false;
+                chatInput.value = '';
+                chatInput.focus();
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

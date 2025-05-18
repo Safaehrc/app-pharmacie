@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Pharmacie Sansaf</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c5c7a;
+            --secondary-color: #5cb85c;
+            --light-bg: #f8f9fa;
+            --dark-bg: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+
+        .login-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin: 2rem auto;
+            max-width: 500px;
+        }
+
+
+        .form-label {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+
+        .input-icon {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-icon i {
+            position: absolute;
+            left: 15px;
+            top: 65%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            z-index: 2;
+        }
+
+        .input-icon input {
+            padding-left: 40px;
+            position: relative;
+        }
+
+        .btn-login {
+            background: var(--secondary-color);
+            border: none;
+            padding: 0.75rem 2rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(92,184,92,0.3);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 65%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .form-control {
+            background-clip: padding-box !important;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+        }
+        
+        header, footer {
+            background-color: var(--primary-color) !important;
+        }
+    </style>
+</head>
+<body>
+    <header class="text-white py-4">
+        <div class="container text-center">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-prescription-bottle me-2"></i>Pharmacie Sansaf
+            </h1>
+        </div>
+    </header>
+
+    <main class="container flex-grow-1">
+        <div class="login-container mt-5">
+            <h2 class="text-center mb-4">
+                <i class="fas fa-sign-in-alt me-2"></i>Connexion
+            </h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} d-flex align-items-center">
+                            <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' }} me-2"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('login') }}" method="POST">
+                <!-- Champ Nom d'utilisateur -->
+                <div class="input-icon">
+                    <label for="username" class="form-label">Nom d'utilisateur</label>
+                    <div class="position-relative">
+                        <i class="fas fa-user"></i>
+                        <input type="text" 
+                            class="form-control ps-5" 
+                            id="username" 
+                            name="username" 
+                            required>
+                    </div>
+                </div>
+
+                <!-- Champ Email -->
+                <div class="input-icon">
+                    <label for="email" class="form-label">Adresse e-mail</label>
+                    <div class="position-relative">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" 
+                            class="form-control ps-5" 
+                            id="email" 
+                            name="email" 
+                            required>
+                    </div>
+                </div>
+
+                <!-- Champ Mot de passe -->
+                <div class="input-icon">
+                    <label for="password" class="form-label">Mot de passe</label>
+                    <div class="position-relative">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" 
+                            class="form-control ps-5" 
+                            id="password" 
+                            name="password" 
+                            required>
+                        <i class="fas fa-eye password-toggle" 
+                           onclick="togglePasswordVisibility('password')"></i>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-login text-white">
+                        <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                    </button>
+                    <a href="{{ url_for('forgot_password') }}" class="btn btn-link">
+                        <i class="fas fa-question-circle me-2"></i>Mot de passe oublié ?
+                    </a>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-user-plus me-2"></i>Créer un compte
+                    </a>
+                    <a href="{{ url_for('home') }}" class="btn btn-secondary">
+                        <i class="fas fa-home me-2"></i>Accueil
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="text-white text-center py-3 mt-auto">
+        <div class="container">
+            <p class="mb-0">&copy; 2025 Pharmacie Sansaf. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function togglePasswordVisibility(fieldId) {
+            const passwordField = document.getElementById(fieldId);
+            const toggleIcon = passwordField.nextElementSibling;
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', () => {
+                if (input.checkValidity()) {
+                    input.classList.remove('is-invalid');
+                    input.classList.add('is-valid');
+                } else {
+                    input.classList.remove('is-valid');
+                    input.classList.add('is-invalid');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Commandes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2a5a78;
+            --secondary-color: #5cb85c;
+            --light-bg: #f8f9fa;
+            --dark-bg: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+
+        .order-table {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .order-table thead {
+            background: linear-gradient(135deg, var(--primary-color), #1d465f);
+            color: white;
+        }
+
+        .sort-link {
+            color: rgb(150, 11, 11);
+            text-decoration: none;
+            position: relative;
+        }
+
+        .sort-link:hover {
+            color: var(--secondary-color);
+        }
+
+        .sort-arrow {
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+
+        .status-badge {
+            padding: 0.5em 1em;
+            border-radius: 20px;
+            font-size: 0.9em;
+            min-width: 90px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .pagination .page-link {
+            border: none;
+            margin: 0 3px;
+            border-radius: 8px;
+        }
+
+        .action-btn {
+            transition: transform 0.2s;
+            min-width: 100px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .table-responsive {
+                border: none;
+            }
+            
+            .order-table th, 
+            .order-table td {
+                white-space: nowrap;
+            }
+        }
+        header {
+            background-color: var(--primary-color) !important;
+        }
+    
+        footer {
+            background-color: var(--primary-color) !important;
+        }
+    </style>
+</head>
+<body>
+    <header class=" text-white py-3">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h2 class="h4 mb-0">
+                <i class="fas fa-clipboard-list me-2"></i>Gestion des Commandes
+            </h2>
+            <nav>
+                <a href="{{ url_for('stock') }}" class="btn btn-light">
+                    <i class="fas fa-arrow-left me-2"></i>Retour au stock
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mt-4 flex-grow-1">
+        <div class="table-responsive order-table">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>
+                            <a href="{{ url_for('all_commandes', sort_by='user', sort_order='asc' if sort_by != 'user' or sort_order == 'desc' else 'desc') }}" 
+                               class="sort-link">
+                                Utilisateur
+                                <i class="fas fa-sort sort-arrow"></i>
+                            </a>
+                        </th>
+                        <th>Médicament</th>
+                        <th>
+                            <a href="{{ url_for('all_commandes', sort_by='quantity', sort_order='asc' if sort_by != 'quantity' or sort_order == 'desc' else 'desc') }}" 
+                               class="sort-link">
+                                Quantité
+                                <i class="fas fa-sort sort-arrow"></i>
+                            </a>
+                        </th>
+                        <th>Total</th>
+                        <th>
+                            <a href="{{ url_for('all_commandes', sort_by='date_commande', sort_order='asc' if sort_by != 'date_commande' or sort_order == 'desc' else 'desc') }}" 
+                               class="sort-link">
+                                Date
+                                <i class="fas fa-sort sort-arrow"></i>
+                            </a>
+                        </th>
+                        <th>Statut</th>
+                        <th><i class="fas fa-phone me-2"></i>Téléphone</th>
+                        <th><i class="fas fa-map-marker-alt me-2"></i>Adresse</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for commande in commandes %}
+                    <tr>
+                        <td>{{ commande.user.username }}</td>
+                        <td>{{ commande.medicament.name }}</td>
+                        <td>{{ commande.quantity }}</td>
+                        <td>{{ commande.total }} MAD</td>
+                        <td>{{ commande.date_commande.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>
+                            {% if commande.status == "Pending" %}
+                                <span class="status-badge bg-warning text-dark">En attente</span>
+                            {% elif commande.status == "Expédiée" %}
+                                <span class="status-badge bg-info text-dark">Expédiée</span>
+                            {% elif commande.status == "Livrée" %}
+                                <span class="status-badge bg-success">Livrée</span>
+                            {% elif commande.status == "Approuvée" %}
+                                <span class="status-badge bg-primary">Approuvée</span>
+                            {% elif commande.status == "Refusée" %}
+                                <span class="status-badge bg-danger">Refusée</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <i class="fas fa-phone text-muted me-2"></i>
+                            {{ commande.delivery_details.phone if commande.delivery_details else '-' }}
+                        </td>
+                        <td>
+                            <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                            {{ commande.delivery_details.address if commande.delivery_details else '-' }}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('update_commande', commande_id=commande.id) }}" 
+                               class="btn btn-primary btn-sm action-btn">
+                               <i class="fas fa-edit me-2"></i>Modifier
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <nav aria-label="Navigation des pages" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% for page_num in commandes.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                <li class="page-item {% if page_num == commandes.page %}active{% endif %}">
+                    <a class="page-link" 
+                       href="{{ url_for('all_commandes', page=page_num, sort_by=sort_by, sort_order=sort_order) }}">
+                        {{ page_num if page_num else '...' }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </nav>
+    </main>
+
+    <footer class="text-white text-center py-3 mt-auto">
+        <div class="container">
+            <p class="mb-0">&copy; 2025 Pharmacie Sansaf. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Ajout d'indicateurs de tri
+        const urlParams = new URLSearchParams(window.location.search);
+        const sortBy = urlParams.get('sort_by');
+        const sortOrder = urlParams.get('sort_order');
+
+        document.querySelectorAll('.sort-link').forEach(link => {
+            if (link.href.includes(`sort_by=${sortBy}`)) {
+                const arrow = link.querySelector('.fa-sort');
+                arrow.className = sortOrder === 'asc' ? 
+                    'fas fa-sort-up sort-arrow' : 
+                    'fas fa-sort-down sort-arrow';
+                link.style.color = '#5cb85c';
+            }
+        });
+    </script>
+</body>
+</html>

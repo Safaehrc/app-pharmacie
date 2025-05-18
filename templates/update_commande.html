@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mise à jour de commande</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2a5a78;
+            --secondary-color: #5cb85c;
+            --light-bg: #f8f9fa;
+            --dark-bg: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .update-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin: 2rem auto;
+            max-width: 600px;
+        }
+
+        .status-select {
+            position: relative;
+        }
+
+        .status-select i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+        }
+
+        .form-select {
+            padding-left: 40px;
+        }
+
+        .btn-update {
+            background: var(--secondary-color);
+            border: none;
+            padding: 0.75rem 2rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-update:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(92,184,92,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .update-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+        }
+        header {
+            background-color: var(--primary-color) !important;
+        }
+    
+        footer {
+            background-color: var(--primary-color) !important;
+        }
+    </style>
+</head>
+<body>
+    <header class="text-white py-3">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h2 class="h4 mb-0">
+                <i class="fas fa-sync-alt me-2"></i>Mise à jour de commande
+            </h2>
+            <nav>
+                <a href="{{ url_for('all_commandes') }}" class="btn btn-light">
+                    <i class="fas fa-arrow-left me-2"></i>Retour
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container flex-grow-1">
+        <div class="update-container mt-4">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Commande #{{ commande.id }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-4 status-select">
+                            <i class="fas fa-info-circle"></i>
+                            <label for="status" class="form-label">Statut actuel</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="Pending" {% if commande.status == "Pending" %}selected{% endif %}>
+                                    <i class="fas fa-clock me-2"></i>En attente
+                                </option>
+                                <option value="Expédiée" {% if commande.status == "Expédiée" %}selected{% endif %}>
+                                    <i class="fas fa-shipping-fast me-2"></i>Expédiée
+                                </option>
+                                <option value="Livrée" {% if commande.status == "Livrée" %}selected{% endif %}>
+                                    <i class="fas fa-check-circle me-2"></i>Livrée
+                                </option>
+                                <option value="Approuvée" {% if commande.status == "Approuvée" %}selected{% endif %}>
+                                    <i class="fas fa-thumbs-up me-2"></i>Approuvée
+                                </option>
+                                <option value="Refusée" {% if commande.status == "Refusée" %}selected{% endif %}>
+                                    <i class="fas fa-times-circle me-2"></i>Refusée
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-update text-white">
+                                <i class="fas fa-save me-2"></i>Mettre à jour
+                            </button>
+                            <a href="{{ url_for('all_commandes') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-white text-center py-3 mt-auto">
+        <div class="container">
+            <p class="mb-0">&copy; 2025 Pharmacie Sansaf. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Confirmation visuelle avant soumission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const btn = this.querySelector('button[type="submit"]');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mise à jour...';
+            btn.disabled = true;
+        });
+
+        // Changement visuel du statut
+        document.getElementById('status').addEventListener('change', function() {
+            const cardHeader = document.querySelector('.card-header');
+            const statusColors = {
+                'Pending': 'bg-warning',
+                'Expédiée': 'bg-info',
+                'Livrée': 'bg-success',
+                'Approuvée': 'bg-primary',
+                'Refusée': 'bg-danger'
+            };
+            
+            // Reset classes
+            cardHeader.className = 'card-header bg-primary text-white';
+            cardHeader.classList.add(statusColors[this.value]);
+        });
+    </script>
+</body>
+</html>

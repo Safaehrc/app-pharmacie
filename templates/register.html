@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Pharmacie Sansaf</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2a5a78;
+            --secondary-color: #5cb85c;
+            --light-bg: #f8f9fa;
+            --dark-bg: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .registration-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin: 2rem auto;
+            max-width: 600px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-icon {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .input-icon input {
+            padding-left: 45px;
+            height: 50px;
+            border-radius: 8px!important;
+        }
+
+        .password-requirements {
+            font-size: 0.9em;
+            padding: 10px;
+            border-radius: 8px;
+            background: var(--light-bg);
+        }
+
+        .btn-register {
+            background: var(--secondary-color);
+            border: none;
+            padding: 0.75rem 2rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .registration-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .input-icon i {
+                left: 12px;
+                font-size: 1rem;
+            }
+            
+            .input-icon input {
+                padding-left: 40px;
+                height: 46px;
+            }
+        }
+
+        header {
+            background-color: var(--primary-color) !important;
+        }
+        
+        footer {
+            background-color: var(--primary-color) !important;
+        }
+    </style>
+</head>
+<body>
+    <header class="text-white py-3">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h1 class="h4 mb-0">
+                <i class="fas fa-user-plus me-2"></i>Création de compte
+            </h1>
+            <nav>
+                <a href="{{ url_for('home') }}" class="btn btn-light">
+                    <i class="fas fa-arrow-left me-2"></i>Retour
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container flex-grow-1">
+        <div class="registration-container mt-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} d-flex align-items-center">
+                            <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' }} me-2"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('register') }}" method="POST">
+                <div class="row g-3">
+                    <!-- Champ Nom d'utilisateur -->
+                    <div class="col-md-6">
+                        <label for="username" class="form-label">
+                            <i class="fas fa-user"></i>
+                            Nom d'utilisateur
+                        </label>
+                        <div class="input-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                    </div>
+
+                    <!-- Champ E-mail -->
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope"></i>
+                            Adresse e-mail
+                        </label>
+                        <div class="input-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                    </div>
+
+                    <!-- Champ Mot de passe -->
+                    <div class="col-12">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock"></i>
+                            Mot de passe
+                        </label>
+                        <div class="input-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="password" 
+                                   name="password" 
+                                   pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}" 
+                                   required>
+                        </div>
+                        <div class="password-requirements mt-2">
+                            <div class="form-text">Le mot de passe doit contenir :</div>
+                            <ul class="list-unstyled">
+                                <li><span id="length">✓</span> 8 caractères minimum</li>
+                                <li><span id="uppercase">✓</span> 1 majuscule</li>
+                                <li><span id="lowercase">✓</span> 1 minuscule</li>
+                                <li><span id="number">✓</span> 1 chiffre</li>
+                                <li><span id="special">✓</span> 1 caractère spécial</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Champ Confirmation -->
+                    <div class="col-12">
+                        <label for="confirmPassword" class="form-label">
+                            <i class="fas fa-lock"></i>
+                            Confirmation
+                        </label>
+                        <div class="input-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-register text-white">
+                        <i class="fas fa-user-check me-2"></i>Créer le compte
+                    </button>
+                </div>
+            </form>
+
+            <p class="text-center mt-4">
+                Déjà inscrit ? 
+                <a href="{{ url_for('login') }}" class="text-decoration-none">
+                    Connectez-vous ici
+                    <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </p>
+        </div>
+    </main>
+
+    <footer class="text-white text-center py-3 mt-auto">
+        <div class="container">
+            <p class="mb-0">&copy; 2025 Pharmacie Sansaf. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Validation en temps réel du mot de passe
+        const password = document.getElementById('password');
+        const requirements = {
+            length: document.getElementById('length'),
+            uppercase: document.getElementById('uppercase'),
+            lowercase: document.getElementById('lowercase'),
+            number: document.getElementById('number'),
+            special: document.getElementById('special')
+        };
+
+        password.addEventListener('input', () => {
+            const value = password.value;
+            requirements.length.style.color = value.length >= 8 ? 'green' : 'red';
+            requirements.uppercase.style.color = /[A-Z]/.test(value) ? 'green' : 'red';
+            requirements.lowercase.style.color = /[a-z]/.test(value) ? 'green' : 'red';
+            requirements.number.style.color = /\d/.test(value) ? 'green' : 'red';
+            requirements.special.style.color = /[@$!%*?&]/.test(value) ? 'green' : 'red';
+        });
+
+        // Validation de la confirmation
+        document.querySelector('form').addEventListener('submit', (e) => {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Les mots de passe ne correspondent pas !');
+                document.getElementById('confirmPassword').focus();
+            }
+        });
+    </script>
+</body>
+</html>

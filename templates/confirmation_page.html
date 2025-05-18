@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réinitialisation envoyée</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2a5a78;
+            --secondary-color: #5cb85c;
+            --light-bg: #f8f9fa;
+            --dark-bg: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        
+
+        .confirmation-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin: 2rem auto;
+            max-width: 600px;
+        }
+
+        
+
+        .email-icon {
+            font-size: 4rem;
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+            animation: bounce 1s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+
+        .btn-return {
+            transition: transform 0.2s;
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-return:hover {
+            transform: translateX(-5px);
+        }
+
+        @media (max-width: 768px) {
+            .confirmation-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+        }
+        header {
+            background-color: var(--primary-color) !important;
+        }
+    
+        footer {
+            background-color: var(--primary-color) !important;
+        }
+    </style>
+</head>
+<body>
+    <header class="text-white py-3">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h1 class="h4 mb-0">
+                <i class="fas fa-lock me-2"></i>Pharmacie Sansaf
+            </h1>
+        </div>
+    </header>
+
+    <main class="container flex-grow-1 mt-5">
+        <div class="confirmation-container text-center">
+            <i class="fas fa-envelope email-icon"></i>
+            <h1 class="mb-4">Demande envoyée avec succès</h1>
+            <div class="alert alert-success" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                Un lien de réinitialisation a été envoyé à votre adresse e-mail
+            </div>
+            <p class="text-muted mb-4">
+                Vérifiez votre boîte de réception et suivez les instructions.<br>
+                Le lien expirera dans 1 heure pour des raisons de sécurité.
+            </p>
+            <a href="{{ url_for('login') }}" class="btn btn-primary btn-return">
+                <i class="fas fa-arrow-left me-2"></i>Retour à la connexion
+            </a>
+        </div>
+    </main>
+
+    <footer class=" text-white text-center py-3 mt-auto">
+        <div class="container">
+            <p class="mb-0">&copy; 2025 Pharmacie Sansaf. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
